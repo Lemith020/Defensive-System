@@ -22,6 +22,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun AppRoot() {
@@ -41,7 +47,13 @@ fun AppRoot() {
     LaunchedEffect(Unit) { requestPermissions() }
 
     val titles = listOf("Radar", "Objects", "Settings", "Alerts", "Bluetooth")
-    val icons = listOf("◔", "◉", "⚙", "⚠", "⇄")
+    val icons = listOf(
+        R.drawable.ic_nav_radar,
+        R.drawable.ic_nav_objects,
+        R.drawable.ic_nav_settings,
+        R.drawable.ic_nav_alerts,
+        R.drawable.ic_nav_bluetooth
+    )
     val bg = Color(0xFF050A05)
 
     MaterialTheme(
@@ -62,8 +74,19 @@ fun AppRoot() {
                         NavigationBarItem(
                             selected = tab == i,
                             onClick = { tab = i },
-                            icon = { Text(icons[i]) },
-                            label = { Text(title, fontSize = 10.sp) }
+                            icon = {
+                                Image(
+                                    painter = painterResource(icons[i]),
+                                    contentDescription = title,
+                                    modifier = Modifier.size(32.dp).alpha(if (tab == i) 1f else 0.6f)
+                                )
+                            },
+                            label = { Text(title, fontSize = 10.sp) },
+                            colors = NavigationBarItemDefaults.colors(
+                                indicatorColor = RadarGreen.copy(alpha = 0.18f),
+                                selectedTextColor = Color.White,
+                                unselectedTextColor = Color.Gray
+                            )
                         )
                     }
                 }
