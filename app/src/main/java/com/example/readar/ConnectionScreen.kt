@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.material3.ButtonDefaults
 
 @SuppressLint("MissingPermission")
 @Composable
@@ -42,10 +43,15 @@ fun ConnectionScreen(onRequestPermissions: () -> Unit) {
         Text("Status: $state", color = stateColor, fontWeight = FontWeight.Bold)
         Text(message, color = Color.LightGray, fontSize = 13.sp)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button(onClick = onRequestPermissions) { Text("Paired Devices") }
-            Button(onClick = { RadarEngine.reconnect() }) { Text("Reconnect") }
-            OutlinedButton(onClick = { RadarEngine.disconnect() }) { Text("Disconnect", color = Color.Red) }
+            Button(onClick = onRequestPermissions, modifier = Modifier.weight(1f)) { Text("Paired Devices") }
+            Button(onClick = { RadarEngine.reconnect() }, modifier = Modifier.weight(1f)) { Text("Reconnect") }
         }
+        Button(
+            onClick = { RadarEngine.disconnect() },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = RadarRed)
+        ) { Text("Disconnect", color = Color.White) }
+
         if (devices.isEmpty()) Text("No paired devices. Pair HC-06 in phone settings first.", color = Color.Gray)
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             items(devices) { d ->
