@@ -49,10 +49,10 @@ object Notifier {
     fun alert(ctx: Context, r: AlertRecord) {
         val nm = NotificationManagerCompat.from(ctx)
         if (!nm.areNotificationsEnabled()) return
-        val text = "Object ${idLabel(r.objectId)} • ${r.distance.toInt()} cm • ${r.angle.toInt()}° • ${formatTime(r.time)}"
+        val text = "${alertMessage(r)} at ${formatTime(r.time)}"
         val n = NotificationCompat.Builder(ctx, ALERT_CHANNEL)
             .setSmallIcon(android.R.drawable.ic_dialog_alert)
-            .setContentTitle("Security Alert")
+            .setContentTitle("Security Alert: Object ${r.objectId} detected")
             .setContentText(text)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_ALARM)

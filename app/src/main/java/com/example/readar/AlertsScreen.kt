@@ -39,10 +39,12 @@ fun AlertsScreen() {
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             items(alerts) { a ->
                 Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF1A0F0F))) {
-                    Column(Modifier.fillMaxWidth().padding(12.dp)) {
-                        Text("Object ${idLabel(a.objectId)}", color = RadarRed, fontWeight = FontWeight.Bold)
-                        Text("${a.distance.toInt()} cm  •  ${a.angle.toInt()}°", color = Color.White)
-                        Text(formatTime(a.time), color = Color.Gray, fontSize = 12.sp)
+                    Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text("Security Alert: Object ${a.objectId} detected", color = RadarRed, fontWeight = FontWeight.Bold)
+                        Text("Someone or something entered the security zone.", color = Color.White, fontSize = 14.sp)
+                        Text("Distance: ${a.distance.toInt()} cm", color = Color.White)
+                        Text("Direction: ${directionLabel(a.angle).replaceFirstChar { it.uppercase() }} (${a.angle.toInt()} degrees)", color = Color.White)
+                        Text("Time: ${formatTime(a.time)}", color = Color.Gray, fontSize = 12.sp)
                     }
                 }
             }

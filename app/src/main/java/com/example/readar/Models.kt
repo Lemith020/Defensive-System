@@ -40,3 +40,12 @@ object Polar {
 fun idLabel(id: Int): String = "#%03d".format(id)
 
 fun formatTime(t: Long): String = SimpleDateFormat("dd MMM HH:mm:ss", Locale.getDefault()).format(Date(t))
+
+fun directionLabel(angle: Float): String = when {
+    angle < 60f -> "right side"
+    angle <= 120f -> "front"
+    else -> "left side"
+}
+
+fun alertMessage(r: AlertRecord): String =
+    "Object ${r.objectId} is ${r.distance.toInt()} cm away at the ${directionLabel(r.angle)} (${r.angle.toInt()} degrees)"
