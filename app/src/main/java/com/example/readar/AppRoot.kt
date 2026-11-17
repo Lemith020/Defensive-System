@@ -24,7 +24,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -36,14 +35,23 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppRoot() {
-    var tab by remember { mutableIntStateOf(0) }
+fun AppRoot(
+    selectedTab: Int = 0,
+    onTabChange: (Int) -> Unit = {}
+) {
+    var tab by remember { mutableIntStateOf(selectedTab) }
     val alerts by RadarEngine.alerts.collectAsState()
-    var seenTime by remember { mutableLongStateOf(RadarEngine.alerts.value.firstOrNull()?.time ?: 0L) }
-    LaunchedEffect(tab, alerts) {
-        if (tab == 3) seenTime = alerts.firstOrNull()?.time ?: seenTime
+    val unread by RadarEngine.unreadAlertCount.collectAsState()
+
+    LaunchedEffect(selectedTab) {
+        tab = selectedTab
     }
-    val unread = alerts.count { it.time > seenTime }
+
+    LaunchedEffect(tab, alerts) {
+        if (tab == 3) {
+            RadarEngine.markAlertsRead()
+        }
+    }
 
     val permissions = remember {
         buildList<String> {
@@ -86,7 +94,10 @@ fun AppRoot() {
                     titles.forEachIndexed { i, title ->
                         NavigationBarItem(
                             selected = tab == i,
-                            onClick = { tab = i },
+                            onClick = {
+                                tab = i
+                                onTabChange(i)
+                            },
                             icon = {
                                 val iconImage: @Composable () -> Unit = {
                                     Image(
