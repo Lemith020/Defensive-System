@@ -4,34 +4,47 @@ import android.Manifest
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppRoot() {
     var tab by remember { mutableIntStateOf(0) }
+    val alerts by RadarEngine.alerts.collectAsState()
+    var seenTime by remember { mutableLongStateOf(RadarEngine.alerts.value.firstOrNull()?.time ?: 0L) }
+    LaunchedEffect(tab, alerts) {
+        if (tab == 3) seenTime = alerts.firstOrNull()?.time ?: seenTime
+    }
+    val unread = alerts.count { it.time > seenTime }
+
     val permissions = remember {
         buildList<String> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) add(Manifest.permission.BLUETOOTH_CONNECT)
@@ -75,11 +88,24 @@ fun AppRoot() {
                             selected = tab == i,
                             onClick = { tab = i },
                             icon = {
-                                Image(
-                                    painter = painterResource(icons[i]),
-                                    contentDescription = title,
-                                    modifier = Modifier.size(32.dp).alpha(if (tab == i) 1f else 0.6f)
-                                )
+                                val iconImage: @Composable () -> Unit = {
+                                    Image(
+                                        painter = painterResource(icons[i]),
+                                        contentDescription = title,
+                                        modifier = Modifier.size(32.dp).alpha(if (tab == i) 1f else 0.6f)
+                                    )
+                                }
+                                if (i == 3 && unread > 0) {
+                                    BadgedBox(
+                                        badge = {
+                                            Badge(containerColor = RadarRed) {
+                                                Text(if (unread > 99) "99+" else "$unread", color = Color.White)
+                                            }
+                                        }
+                                    ) { iconImage() }
+                                } else {
+                                    iconImage()
+                                }
                             },
                             label = { Text(title, fontSize = 10.sp) },
                             colors = NavigationBarItemDefaults.colors(
